@@ -28,10 +28,10 @@ local function CheckVersion()
         local latestVersion = data.tag_name
 
         if latestVersion ~= currentVersion then
-            print(('^4New version available for indigo_parking! Installed: v%s | Latest: %s')
+            print(('^4New version available for indigo_parking! Installed: %s | Latest: %s')
                 :format(currentVersion, latestVersion))
         else
-            print(('^4Running latest version (v%s)'):format(currentVersion))
+            print(('^4Running latest version (%s)'):format(currentVersion))
         end
     end, 'GET')
 end
