@@ -1,12 +1,12 @@
 --aktuell
 
-print("Persistent Vehicles Client gestartet")
+--print("Persistent Vehicles Client gestartet")
 
 local currentPlate = nil
 
 -- 1. HAUPT-LOOP: Erkennt Ein-/Ausstieg und sendet Daten an Server
 CreateThread(function()
-    print("TEST CLIENT THREAD STARTED")
+    --print("TEST CLIENT THREAD STARTED")
     while true do
         Wait(1000)
         local ped = PlayerPedId()
@@ -14,15 +14,18 @@ CreateThread(function()
         if IsPedInAnyVehicle(ped, false) then
             local vehicle = GetVehiclePedIsIn(ped, false)
             local plate = GetVehicleNumberPlateText(vehicle)
+            local props = lib.getVehicleProperties(vehicle)
             
             -- Nur wenn neues Fahrzeug erkannt
             if plate ~= currentPlate and plate ~= "" then
                 currentPlate = plate
-                
-                print("NEUES FAHRZEUG ERKANNT: " .. plate)
-                print("Versuche Daten zu lesen...")
 
-                -- Kurze Wartezeit f r Synchronisation
+                --print("PROPS: " .. json.encode(props))
+                
+                --print("NEUES FAHRZEUG ERKANNT: " .. plate)
+                --print("Versuche Daten zu lesen...")
+
+                -- Kurze Wartezeit für Synchronisation
                 Wait(500) 
                 
                 local model = GetEntityModel(vehicle)
@@ -30,16 +33,17 @@ CreateThread(function()
                 local coords = GetEntityCoords(vehicle)
                 local heading = GetEntityHeading(vehicle)
 
+                
 
                 print("Plate: " .. tostring(plate) .. " | Model: " .. tostring(model) .. " | Fuel: " .. tostring(fuel))
 
                 if model and fuel then
-                    print("Alle Daten g ltig, sende Event...")
-                    -- Sende jetzt auch die echten Koordinaten!
-                    TriggerServerEvent("persistentvehicle:update", plate, model, fuel, coords.x, coords.y, coords.z, heading)
-                    print("Event gesendet!")
+                    --print("Alle Daten gültig, sende Event...")
+                    -- Sende jetzt auch die echten Koordinaten
+                    TriggerServerEvent("persistentvehicle:update", plate, model, fuel, coords.x, coords.y, coords.z, heading, props, {})
+                    --print("Event gesendet!")
                 else
-                    print("FEHLER: Eine der Daten war nil! Thread w rde hier oft abst rzen.")
+                    --print("^1Error: ")
                 end
             end
         else
@@ -51,16 +55,20 @@ CreateThread(function()
                 local fuel = GetVehicleFuelLevel(vehicle)
                 local coords = GetEntityCoords(vehicle)
                 local heading = GetEntityHeading(vehicle)
+                local props = lib.getVehicleProperties(vehicle)
 
-                TriggerServerEvent("persistentvehicle:update", plate, model, fuel, coords.x, coords.y, coords.z, heading)
-                print("Safed Data")
-                print("AUSGESTIEGEN (Letztes Plate: " .. currentPlate .. ")")
+                print("PROPS: " .. json.encode(props))
+
+                TriggerServerEvent("persistentvehicle:update", plate, model, fuel, coords.x, coords.y, coords.z, heading, props, {})
+                --print("Safed Data")
+                --print("AUSGESTIEGEN (Letztes Plate: " .. currentPlate .. ")")
                 currentPlate = nil
             end
         end
     end
 end)
 
+--[[
 -- 2. SPAWN EVENT: Wird vom Server beim Login ausgel st, wenn ein geparktes Auto existiert
 RegisterNetEvent('persistentvehicle:client:spawnCar', function(plate, x, y, z, heading, model, fuel)
     print("^2[SYSTEM]^7 Empfange Spawn-Daten f r: " .. plate)
@@ -104,17 +112,10 @@ RegisterNetEvent('persistentvehicle:client:spawnCar', function(plate, x, y, z, h
     SetEntityAsMissionEntity(veh, true, true)
     
     print("^2[ERFOLG]^7 Persistent Vehicle gespawnt: " .. plate .. " bei " .. x .. ", " .. y)
-
-    -- Schl ssel anfordern (damit man einsteigen kann)
-    if Config.MetadataKeys == false then
-        --vehicle keys müssen nur gegeben werden wenn sie nicht sowieso im inventar gespeichert werden
-        --TriggerServerEvent('persistentvehicle:server:giveKeys', plate)
-    end
-
-    --TriggerServerEvent('persistentvehicle:server:giveKeys', data.plate)
 end)
+]]
 
-
+--[[
 RegisterNetEvent('persistentvehicle:lockVehicleDoors', function (vehicleNetId, plate, fuel)
     local vehicle = NetToVeh(vehicleNetId)
     local timeout = 0
@@ -137,9 +138,11 @@ RegisterNetEvent('persistentvehicle:lockVehicleDoors', function (vehicleNetId, p
     end
 end)
 
+]]
+
 --neue version -> muss vom server getriggert werden
-RegisterNetEvent('persistentVehicle:client:spawnVehicle', function(_model, x, y, z, heading, plate, fuel)
-    print("SpawnVehicle Start")
+RegisterNetEvent('persistentVehicle:client:spawnVehicle', function(_model, x, y, z, heading, plate, fuel, vehicleConfig, vehicleDamage)
+    --print("SpawnVehicle Start")
     --local model = _model 
     local modelHash = _model
 
@@ -170,11 +173,13 @@ RegisterNetEvent('persistentVehicle:client:spawnVehicle', function(_model, x, y,
         if Config.LockVehiclesAtSpawn == true then
             SetVehicleDoorsLocked(vehicle, 2)
         end
+
+        lib.setVehicleProperties(vehicle, json.decode(vehicleConfig))
         
-        print("CLIENT MODEL NAME: " .. modelHash)
-        print("CLIENT PLATE: " .. plate)
+        --print("CLIENT MODEL NAME: " .. modelHash)
+        --print("CLIENT PLATE: " .. plate)
     else
-        print("FEHLER: Fahrzeug konnte nicht gespawnt werden (Hash: " .. tostring(modelHash) .. ")")
+        print("^1Error: Can not spawn vehicle (Hash: " .. tostring(modelHash) .. ")")
     end
 
 
@@ -185,7 +190,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
         return 
     end
 
-    print("CLIENT RESOURCE STARTED")
+    --print("CLIENT RESOURCE STARTED")
 
     TriggerServerEvent('persistentVehicle:server:clientReady')
 end)

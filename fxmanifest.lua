@@ -4,12 +4,13 @@ lua54 'yes'
 
 name 'Indigo Parking'
 author 'SweatyJeans'
-version '1.0.0'
+version '0.2.0'
 description 'A script that saves players cars in the database and respawns them when the server starts.'
 
 
 
 shared_scripts {
+    '@ox_lib/init.lua',
     'config.lua',
 }
 client_scripts {
@@ -22,4 +23,7 @@ server_scripts {
     'server.lua'
 }
 
-dependency 'oxmysql'
+dependencies { 
+    'oxmysql',
+    'ox_lib'
+}
