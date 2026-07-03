@@ -28,8 +28,8 @@ local function CheckVersion()
         local latestVersion = data.tag_name
 
         if latestVersion ~= currentVersion then
-            print(('^4New version available for indigo_parking! Installed: %s | Latest: %s')
-                :format(currentVersion, latestVersion))
+            print(('^4New version available for indigo_parking! Installed: %s | Latest: %s'):format(currentVersion, latestVersion))
+            print('^4Download the latest Release from GitHub at: https://github.com/SweatyJeans/indigo_parking/releases/latest')
         else
             print(('^4Running latest version (%s)'):format(currentVersion))
         end
@@ -66,7 +66,7 @@ RegisterNetEvent('persistentVehicle:server:clientReady', function ()
         if not SpawnedPlates[vehicle.plate] then
             TriggerClientEvent('persistentVehicle:client:spawnVehicle', src, vehicle.model, vehicle.x, vehicle.y, vehicle.z+0.5, vehicle.heading, vehicle.plate, vehicle.fuel, vehicle.vehicleConfig, vehicle.vehicleDamage)
             SpawnedPlates[vehicle.plate] = true
-            print("Spawned plate: " .. vehicle.plate)
+            print("^4Spawned plate: " .. vehicle.plate)
         end
         
 

@@ -4,7 +4,7 @@ lua54 'yes'
 
 name 'Indigo Parking'
 author 'SweatyJeans'
-version 'v0.2.2'
+version 'v1.0.0'
 description 'A script that saves players cars in the database and respawns them when the server starts.'
 
 

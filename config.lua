@@ -8,3 +8,4 @@ Config.LockVehiclesAtSpawn = true --If set to true, the script will lock vehicle
 Config.AutoCreateTableInDB = true --If set to true, the script will create the database if it does not already exist
 
 Config.CheckForUpdates = true --Check for updates on server start 
+
